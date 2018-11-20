@@ -3,6 +3,9 @@ Copyright © 2010 Dan Wanek <dan.wanek@gmail.com>
 
 Licensed under the MIT License: http://www.opensource.org/licenses/mit-license.php
 =end
+
+require 'open3'
+
 module GSSAPI
   module LibGSSAPI
 
@@ -23,7 +26,16 @@ module GSSAPI
         gssapi_lib = 'libgssapi_krb5.so.2'
         ffi_lib gssapi_lib, FFI::Library::LIBC
       when /darwin/
-        gssapi_lib = '/usr/lib/libgssapi_krb5.dylib'
+        prefix = begin
+          stdout, _stderr, status = Open3.capture3("krb5-config --prefix")
+          stdout.chomp!
+
+          stdout if stdout != '/' && status == 0
+        rescue Errno::ENOENT
+          # No krb5-config command found, use the default prefix.
+        end || "/usr"
+
+        gssapi_lib = File.join(prefix, 'lib/libgssapi_krb5.dylib')
         ffi_lib gssapi_lib, FFI::Library::LIBC
       when /mswin|mingw32|windows/
         # Pull the gssapi32 path from the environment if it exist, otherwise use the default in Program Files
