@@ -1,3 +1,7 @@
+# Fork Purpose
+
+This fork of the [gssapi](https://github.com/zenchild/gssapi) gem adds support for the Homebrew-installed krb5 distribution on macOS.
+
 # Ruby GSSAPI Library
 
 This is a wrapper around the system GSSAPI library (MIT only at this time).  It exposes the low-level GSSAPI methods like gss_init_sec_context and gss_wrap and also provides an easier to use wrapper on top of this for common usage scenarios.
