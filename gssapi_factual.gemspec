@@ -4,15 +4,15 @@ $:.unshift lib unless $:.include?(lib)
 require 'date'
 
 Gem::Specification.new do |gem|
-  gem.name     = "gssapi"
+  gem.name     = "gssapi-factual"
   gem.version  = File.open('VERSION').readline.chomp
   gem.date     = Date.today.to_s
   gem.platform = Gem::Platform::RUBY
   gem.rubyforge_project  = nil
 
-  gem.author = "Dan Wanek"
-  gem.email = "dan.wanek@gmail.com"
-  gem.homepage = "http://github.com/zenchild/gssapi"
+  gem.authors = ["Dan Wanek", "Jorge Israel Peña"]
+  gem.email = ["dan.wanek@gmail.com", "jorge@factual.com"]
+  gem.homepage = "http://github.com/Factual/gssapi"
   gem.license = "MIT"
 
   gem.summary = "A FFI wrapper around the system GSSAPI library."
