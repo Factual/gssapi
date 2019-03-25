@@ -26,16 +26,24 @@ module GSSAPI
         gssapi_lib = 'libgssapi_krb5.so.2'
         ffi_lib gssapi_lib, FFI::Library::LIBC
       when /darwin/
-        prefix = begin
-          stdout, _stderr, status = Open3.capture3("krb5-config --prefix")
-          stdout.chomp!
+        exception_message = <<BREW
+The gssapi-factual gem on macOS requires the krb5 package from Homebrew. `brew install krb5` and ensure it's in your PATH
+BREW
+        cellar_path = begin
+                        stdout, _stderr, _status = Open3.capture3("brew --cellar")
+                        stdout.chomp!
+                      rescue Errno::ENOENT
+                        raise exception_message
+                      end
 
-          stdout if stdout != '/' && status == 0
-        rescue Errno::ENOENT
-          # No krb5-config command found, use the default prefix.
-        end || "/usr"
+        library_prefix, _stderr, _status = Open3.capture3("krb5-config --prefix")
+        library_prefix.chomp!
 
-        gssapi_lib = File.join(prefix, 'lib/libgssapi_krb5.dylib')
+        if !library_prefix.start_with?(cellar_path)
+          raise exception_message
+        end
+
+        gssapi_lib = File.join(library_prefix, 'lib/libgssapi_krb5.dylib')
         ffi_lib gssapi_lib, FFI::Library::LIBC
       when /mswin|mingw32|windows/
         # Pull the gssapi32 path from the environment if it exist, otherwise use the default in Program Files
