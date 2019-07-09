@@ -26,21 +26,21 @@ module GSSAPI
         gssapi_lib = 'libgssapi_krb5.so.2'
         ffi_lib gssapi_lib, FFI::Library::LIBC
       when /darwin/
-        exception_message = <<BREW
-The gssapi-factual gem on macOS requires the krb5 package from Homebrew. `brew install krb5` and ensure it's in your PATH
-BREW
-        cellar_path = begin
-                        stdout, _stderr, _status = Open3.capture3("brew --cellar")
+        brew_prefix = begin
+                        stdout, _stderr, _status = Open3.capture3("brew --prefix")
                         stdout.chomp!
                       rescue Errno::ENOENT
-                        raise exception_message
+                        raise "Homebrew is required"
                       end
 
-        library_prefix, _stderr, _status = Open3.capture3("krb5-config --prefix")
+        cellar_path = "#{brew_prefix}/Cellar"
+        krb5_config = "#{brew_prefix}/opt/krb5/bin/krb5-config"
+
+        library_prefix, _stderr, _status = Open3.capture3("#{krb5_config} --prefix")
         library_prefix.chomp!
 
         if !library_prefix.start_with?(cellar_path)
-          raise exception_message
+          raise "The gssapi-factual gem on macOS requires the krb5 package from Homebrew. `brew install krb5` and ensure it's in your PATH"
         end
 
         gssapi_lib = File.join(library_prefix, 'lib/libgssapi_krb5.dylib')
